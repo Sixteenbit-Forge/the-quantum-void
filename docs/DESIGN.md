@@ -22,8 +22,11 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
 
 ## World Generation
 
-**Chunk generator**
-- Custom `ChunkGenerator` subclass, direct hardcoded noise sampling for island footprint/tiering (à la vanilla `TheEndChunkGenerator`) — not the datapack density-function pipeline.
+**Chunk generator — CORRECTED from initial lock-in**
+- ~~Custom `ChunkGenerator` subclass, hardcoded noise~~ — wrong on two counts, found by checking actual 26.1.2 data: (1) vanilla's own End dimension is generated entirely via the datapack density-function pipeline (`"type": "minecraft:noise"`, `"settings": "minecraft:end"`) in this version, not hardcoded Java; (2) no working example of a hand-written `ChunkGenerator` exists to verify signatures against (checked NeoForge's own repo and tests — none).
+- Verified against a reference project (a reference project, `26.1` branch — a real, currently-maintained custom-dimension mod for this exact MC version) as a reference for real, working `noise_settings` JSON schema.
+- Implementation: `data/quantumvoid/worldgen/noise_settings/quantum_void.json` — `"type": "minecraft:noise"` generator, `final_density` reuses vanilla's `minecraft:end/sloped_cheese` density function (proven island-shaping noise) by bare string reference, `default_block`/surface both set to `ae2:sky_stone_block`. Biome source is `minecraft:fixed` on `minecraft:the_end` for now (custom biome deferred). Confirmed working via `gradlew runServer` — dimension loads and ticks with no schema errors.
+- Island tier shaping (small vs. rare "motherboard") not yet tuned — currently just reuses The End's natural island distribution as-is per the "even if simple/blocky" Phase 1 bar; revisit with a custom density function once the basic shape is visually confirmed in-game.
 
 **Budding certus quartz**
 - Two tiers: common non-flawless budding clusters scatter naturally on islands (ambient resource, no exploration gate); guaranteed flawless cluster reserved for structure loot (minor ruins + guaranteed at the Fractured Core).
@@ -36,8 +39,8 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
 - "Motherboard" islands (host structures): very rare — roughly End-city-tier rarity. Finding one is meant to feel like a genuine discovery, not a routine encounter during exploration.
 
 **Void Sky Stone**
-- Passive bonus: +1 channel per block placed adjacent to network cable/controller (flat, per-block, wired — not radius/aura, not controller-multiblock-only).
-- Minor per-block but real at scale — a wall of it is a legitimate late-game min-max play without trivializing channel management or replacing dense cable outright.
+- ~~Passive +1 channel per adjacent block~~ — **superseded**: AE2's public `appeng.api.networking.pathing.IPathingService` is read-only (no hook to inject bonus channel capacity), and channels are fundamentally a cable-topology property, not a per-block flag, so the original mechanic doesn't map onto AE2's model at all.
+- Revised: Void Sky Stone is an alternate cable block — it hosts a grid node and carries channels itself (like AE2's own dense cable), via the same public cable-hosting API (`IInWorldGridNodeHost`, `GridHelper`) AE2 uses internally for `CableBusBlock`. A stylish structural cable variant, not a stacking bonus.
 
 ## Structures
 
