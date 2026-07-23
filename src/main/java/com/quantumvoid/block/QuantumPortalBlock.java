@@ -13,6 +13,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Optional;
+
 /**
  * The interior "you're standing in the portal" block, filled in by
  * {@link QuantumPortalFrameBlock} once a ring is complete. Not directly obtainable.
@@ -40,10 +42,22 @@ public class QuantumPortalBlock extends Block {
             return;
         }
 
-        BlockPos targetColumn = inQuantumVoid
-                ? BlockPos.containing(QuantumVoidDimension.OVERWORLD_ARRIVAL_X, QuantumVoidDimension.OVERWORLD_ARRIVAL_Y, QuantumVoidDimension.OVERWORLD_ARRIVAL_Z)
-                : BlockPos.containing(QuantumVoidDimension.ARRIVAL_X, QuantumVoidDimension.ARRIVAL_Y, QuantumVoidDimension.ARRIVAL_Z);
-        Vec3 arrivalPos = findSafeLanding(destination, targetColumn);
+        BlockPos targetColumn;
+        if (inQuantumVoid) {
+            targetColumn = BlockPos.containing(QuantumVoidDimension.OVERWORLD_ARRIVAL_X, QuantumVoidDimension.OVERWORLD_ARRIVAL_Y, QuantumVoidDimension.OVERWORLD_ARRIVAL_Z);
+        } else {
+            // Randomize around the nominal point rather than using it directly, so
+            // arrival doesn't always land on end_islands' flat, dominant origin island.
+            var random = serverLevel.getRandom();
+            int offsetX = random.nextInt(1601) - 800;
+            int offsetZ = random.nextInt(1601) - 800;
+            targetColumn = BlockPos.containing(QuantumVoidDimension.ARRIVAL_X + offsetX, QuantumVoidDimension.ARRIVAL_Y, QuantumVoidDimension.ARRIVAL_Z + offsetZ);
+        }
+        Vec3 arrivalPos = findSafeLanding(destination, targetColumn)
+                // Random search came up empty (sparse area) — retry at world origin, which
+                // end_islands guarantees to be solid (it's the dominant "main island").
+                .or(() -> findSafeLanding(destination, BlockPos.containing(0.5, QuantumVoidDimension.ARRIVAL_Y, 0.5)))
+                .orElseGet(() -> Vec3.atCenterOf(targetColumn));
 
         entity.setPortalCooldown();
         entity.teleport(new TeleportTransition(destination, arrivalPos, Vec3.ZERO,
@@ -57,8 +71,10 @@ public class QuantumPortalBlock extends Block {
      * first real ground surface (chunk-forced, mirrors the pattern used by TelepathicGrunt's
      * Bumblezone for its own dimension-entry landing search) and land on top of it.
      */
-    private static Vec3 findSafeLanding(ServerLevel level, BlockPos target) {
-        for (int radius = 0; radius <= 32; radius += 8) {
+    private static final int EDGE_CLEARANCE = 5;
+
+    private static Optional<Vec3> findSafeLanding(ServerLevel level, BlockPos target) {
+        for (int radius = 0; radius <= 128; radius += 8) {
             for (int dx = -radius; dx <= radius; dx++) {
                 for (int dz = -radius; dz <= radius; dz++) {
                     if (Math.max(Math.abs(dx), Math.abs(dz)) != radius) {
@@ -68,12 +84,30 @@ public class QuantumPortalBlock extends Block {
                     int z = target.getZ() + dz;
                     level.getChunk(x >> 4, z >> 4);
                     int surfaceY = level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
-                    if (surfaceY > level.getMinY()) {
-                        return new Vec3(x + 0.5, surfaceY, z + 0.5);
+                    if (surfaceY > level.getMinY() && isAwayFromEdge(level, x, z, surfaceY)) {
+                        return Optional.of(new Vec3(x + 0.5, surfaceY, z + 0.5));
                     }
                 }
             }
         }
-        return Vec3.atCenterOf(target);
+        return Optional.empty();
+    }
+
+    /**
+     * Confirms ground extends at least {@link #EDGE_CLEARANCE} blocks in every cardinal
+     * direction at roughly the same height, so players don't land right on a cliff edge.
+     */
+    private static boolean isAwayFromEdge(ServerLevel level, int x, int z, int surfaceY) {
+        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        for (int[] dir : directions) {
+            int nx = x + dir[0] * EDGE_CLEARANCE;
+            int nz = z + dir[1] * EDGE_CLEARANCE;
+            level.getChunk(nx >> 4, nz >> 4);
+            int neighborY = level.getHeight(Heightmap.Types.MOTION_BLOCKING, nx, nz);
+            if (Math.abs(neighborY - surfaceY) > 3) {
+                return false;
+            }
+        }
+        return true;
     }
 }
