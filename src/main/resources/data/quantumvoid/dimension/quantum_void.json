@@ -6,7 +6,7 @@
     "settings": "quantumvoid:quantum_void",
     "biome_source": {
       "type": "minecraft:fixed",
-      "biome": "minecraft:the_end"
+      "biome": "quantumvoid:quantum_void"
     }
   }
 }
