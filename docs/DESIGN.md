@@ -31,11 +31,12 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
 - Biome: **do not** reuse `minecraft:the_end` as the biome for a custom End-like dimension — it has `minecraft:end_spike` (obsidian pillars) and `minecraft:end_platform` (the exit portal) baked into its feature list, both tied to world origin, independent of `has_ender_dragon_fight`. Hit this exact bug (an exit-portal-looking block and a spike generated near spawn) and fixed it by adding our own `data/quantumvoid/worldgen/biome/quantum_void.json` with an empty feature list, referenced from the dimension's `biome_source` instead.
 - Sky/fog color: also data-driven in this version, via a `dimension_type` JSON `attributes` map (`minecraft:visual/sky_color`, `sky_light_color`, `ambient_light_color`, `fog_color`) plus a top-level `skybox` field (`"end"` reuses the starfield-less End-style renderer). `sky_color` is the actual dome color; `sky_light_color`/`ambient_light_color` only tint lighting on blocks/terrain, not the dome itself — confirmed by testing (setting only the light-color attributes tinted the ground but left the sky pure black). Confirmed via vanilla's real `the_end` dimension_type (fetched from misode/mcmeta's `summary` branch, which — unlike for density functions — matched our codec's attribute field names correctly here).
 - `final_density` rebuilt again: real floating terrain with varied peaks and gradual (not cliff-like) tapering, via a dual height-taper (density narrows both near the base and near the top) wrapped around `quantumvoid:base_3d_noise`, `data/quantumvoid/worldgen/density_function/final_density.json`. Naturally produces multiple separated islands without needing a separate placement layer.
-- Island tier shaping (small vs. rare "motherboard") not yet tuned.
+- ~~Island tier shaping (small vs. rare "motherboard") not yet tuned.~~ Implemented — see "Island tiers" below.
 - Portal arrival: destination column is randomized within a wide range rather than fixed, landing search widened and requires flat clearance in all four directions before accepting a spot (no more edge-of-cliff spawns), with a guaranteed-solid fallback point if the random search comes up empty.
 
 **Budding certus quartz**
 - Two tiers: common non-flawless budding clusters scatter naturally on islands (ambient resource, no exploration gate); guaranteed flawless cluster reserved for structure loot (minor ruins + guaranteed at the Fractured Core).
+- Implemented: reuses AE2's own `ae2:flawed_budding_quartz` block directly (rather than a new block) via an ore-style scatter feature, `data/quantumvoid/worldgen/{configured_feature,placed_feature}/flawed_budding_quartz.json`. Flawless tier still pending — reserved for structures, which don't exist yet.
 
 **Wild fluix crystal growths**
 - Two tiers: the glowing fluix veins running through the void (Section 3 visual identity) are themselves harvestable — the "circuit board" look doubles as ambient resource, not pure decoration. Denser/higher-yield growths cluster on and around structures as a farming incentive.
@@ -43,10 +44,12 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
 **Island tiers**
 - Small islands: common, minor resources only.
 - "Motherboard" islands (host structures): very rare — roughly End-city-tier rarity. Finding one is meant to feel like a genuine discovery, not a routine encounter during exploration.
+- Implemented: a second biome (`quantumvoid:quantum_void_motherboard`) selected via `minecraft:multi_noise` biome source, gated on a dedicated low-frequency, large-wavelength density function (`motherboard_gate`) repurposing the otherwise-unused `erosion` noise router slot — rare by construction (narrow high-value band on a coarse noise). The same gate additively boosts `final_density` in those zones (bigger/taller terrain) and the motherboard biome gets denser ore/quartz placed-feature variants (`*_dense`). Exact rarity/size numbers are a first pass, not yet live-tuned.
 
 **Void Sky Stone**
 - ~~Passive +1 channel per adjacent block~~ — **superseded**: AE2's public `appeng.api.networking.pathing.IPathingService` is read-only (no hook to inject bonus channel capacity), and channels are fundamentally a cable-topology property, not a per-block flag, so the original mechanic doesn't map onto AE2's model at all.
 - Revised: Void Sky Stone is an alternate cable block — it hosts a grid node and carries channels itself (like AE2's own dense cable), via the same public cable-hosting API (`IInWorldGridNodeHost`, `GridHelper`) AE2 uses internally for `CableBusBlock`. A stylish structural cable variant, not a stacking bonus.
+- Implemented: `VoidSkyStoneBlockEntity` implements `IInWorldGridNodeHost` directly (not AE2's `appeng.blockentity.grid.AENetworkedBlockEntity` convenience base — that class lives outside the published `:api` jar this mod compiles against, confirmed by diffing the api jar's contents against the full mod jar). Node created/destroyed via `clearRemoved`/`setRemoved`, configured with `GridFlags.DENSE_CAPACITY`, exposed on all 6 sides. Crafted from 1x `ae2:sky_stone_block` + 1x `ae2:fluix_crystal` → 2x.
 
 **Terrain block family**
 - Void Dirt / Void Grass / Void Sand / Void Log / Void Leaves / Void Diamond Block / Void Emerald Block — purely aesthetic for now, no special mechanics (growth, spread, crafting uses) locked in yet; that's a later pass once the resource-farming loop is designed.
@@ -78,6 +81,8 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
 - Implemented as a MobEffect on the player — no direct manipulation of real `IGridNode` state (keeps it decoupled from AE2 internals, avoids the tight-coupling maintenance burden).
 - Radius: ~16 blocks per Fragment (room/structure-scale) — a nest debuffs the whole immediate area, pressuring players to clear fast rather than pick fights one at a time.
 - Stacking: capped (e.g. ~3-4 Fragments' worth, exact number TBD at tuning time) — a nest is dangerous but proximity count alone can't fully zero out a player's network access.
+- Implemented: `ChannelDrainEffect` (`quantumvoid:channel_drain`) applies a movement-speed/attack-speed penalty via `MobEffect.addAttributeModifier`. The actual "reduces wireless terminal range" hook into AE2 is still open (no public API found for it, matching the design note above about `IPathingService` being read-only) — the attribute penalty stands in as the "your network access is compromised" feel for now.
+- Fragment entities (`FragmentMeleeEntity`/`FragmentRangedEntity`) extend a shared `AbstractFragmentEntity extends Monster` using `FlyingMoveControl`/`FlyingPathNavigation` (same pattern as vanilla Bees); visually reuse vanilla's `EndermiteModel` geometry (small, segmented, already non-humanoid) with a custom texture rather than a hand-built model — ranged variant fires `FragmentBoltEntity` (a `ThrowableItemProjectile` reusing the Quantum Pearl icon, rendered via vanilla's generic `ThrownItemRenderer`, no new projectile model needed).
 
 ## Boss — Fractured Core
 
@@ -91,12 +96,16 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
 - Teleport/blink around the arena (mobility phase, Lich-style).
 - Summons waves of regular Fragments as adds during a phase.
 - Channel-severing attack: periodically severs ALL player network access (terminals, wireless tools) within the arena radius for a short window — a real "fight without your network" phase, not a partial/soft debuff.
+- Implemented: `FracturedCoreEntity extends Monster` with a `ServerBossEvent` boss bar (purple, progress overlay), 150 HP. Each phase is its own no-interrupt `Goal` (`BlinkGoal`, `SummonFragmentsGoal`, `ChannelSeverGoal`) on independent cooldowns alongside a baseline `MeleeAttackGoal`, so the fight naturally varies rather than following one scripted sequence. Visually reuses vanilla's generic `HumanoidModel`/`HumanoidMobRenderer` (the same reusable base `PillagerRenderer`/`SkeletonRenderer` etc. build on) with a custom texture, rather than a hand-built model.
 
 ## Fractured Core Precursor Item
 
 **Singularity Seed**
 - Guaranteed drop from the Fractured Core boss.
-- Drop-in substitute in AE2's existing Singularity crafting recipe (slots in place of/alongside the current ingredient) rather than starting a separate parallel recipe branch.
+- ~~Drop-in substitute in AE2's existing Singularity crafting recipe~~ — **superseded**: checked AE2's real recipe data directly; `ae2:singularity` has no data-driven recipe at all to slot into (it's the hardcoded Matter Cannon "condense 256 matter balls" mechanic, confirmed by the total absence of any `recipe/*.json` outputting it). Patching that would mean touching AE2's internal Java, not a safe datapack change.
+- Implemented: Singularity Seed unlocks its own shapeless recipe (1x seed + 8x `ae2:fluix_crystal` → 1x `ae2:singularity`) — a real alternate path to the same output, achieving the "boss-gated shortcut to Singularities" intent without touching AE2 internals.
 
 ## Open (not yet locked)
 - Exact tuning numbers: Fragment drain stacking cap/magnitude, boss health, phase sequencing/triggers
+- Motherboard-biome rarity/size numbers — first-pass placeholder, not yet observed in a live world
+- Real AE2 hook for reducing wireless terminal range (channel-drain currently uses a generic speed/attack-speed penalty instead)

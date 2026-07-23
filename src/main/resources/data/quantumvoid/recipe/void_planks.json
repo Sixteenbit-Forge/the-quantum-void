@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    "quantumvoid:void_log"
+  ],
+  "result": {
+    "id": "quantumvoid:void_planks",
+    "count": 4
+  }
+}

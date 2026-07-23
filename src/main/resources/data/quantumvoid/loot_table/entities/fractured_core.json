@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:entity",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "minecraft:item", "name": "quantumvoid:singularity_seed" }
+      ]
+    },
+    {
+      "rolls": { "type": "minecraft:uniform", "min": 3, "max": 6 },
+      "entries": [
+        { "type": "minecraft:item", "name": "ae2:flawless_budding_quartz", "weight": 2 },
+        { "type": "minecraft:item", "name": "ae2:fluix_crystal", "weight": 3 },
+        { "type": "minecraft:item", "name": "quantumvoid:void_diamond_block", "weight": 2 }
+      ]
+    }
+  ]
+}

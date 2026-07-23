@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "ae2:sky_stone_block",
+    "ae2:fluix_crystal"
+  ],
+  "result": {
+    "id": "quantumvoid:void_sky_stone",
+    "count": 2
+  }
+}

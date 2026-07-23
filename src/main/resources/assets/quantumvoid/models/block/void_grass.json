@@ -1,6 +1,8 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/cube_bottom_top",
   "textures": {
-    "all": "quantumvoid:block/void_grass"
+    "top": "quantumvoid:block/void_grass_top",
+    "bottom": "quantumvoid:block/void_dirt",
+    "side": "quantumvoid:block/void_grass_side"
   }
 }

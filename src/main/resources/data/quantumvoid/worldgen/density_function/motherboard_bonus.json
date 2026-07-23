@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:clamp",
+  "input": {
+    "type": "minecraft:mul",
+    "argument1": 4.0,
+    "argument2": {
+      "type": "minecraft:add",
+      "argument1": -0.72,
+      "argument2": "quantumvoid:motherboard_gate"
+    }
+  },
+  "min": 0.0,
+  "max": 0.5
+}

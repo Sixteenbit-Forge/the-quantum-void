@@ -5,8 +5,33 @@
     "seed": 0,
     "settings": "quantumvoid:quantum_void",
     "biome_source": {
-      "type": "minecraft:fixed",
-      "biome": "quantumvoid:quantum_void"
+      "type": "minecraft:multi_noise",
+      "biomes": [
+        {
+          "biome": "quantumvoid:quantum_void",
+          "parameters": {
+            "temperature": 0.0,
+            "humidity": 0.0,
+            "continentalness": 0.0,
+            "erosion": [-2.0, 0.72],
+            "depth": 0.0,
+            "weirdness": 0.0,
+            "offset": 0.0
+          }
+        },
+        {
+          "biome": "quantumvoid:quantum_void_motherboard",
+          "parameters": {
+            "temperature": 0.0,
+            "humidity": 0.0,
+            "continentalness": 0.0,
+            "erosion": [0.72, 2.0],
+            "depth": 0.0,
+            "weirdness": 0.0,
+            "offset": 0.0
+          }
+        }
+      ]
     }
   }
 }

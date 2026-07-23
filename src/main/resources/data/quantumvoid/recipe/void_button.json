@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "ingredients": [
+    "quantumvoid:void_planks"
+  ],
+  "result": {
+    "id": "quantumvoid:void_button",
+    "count": 1
+  }
+}

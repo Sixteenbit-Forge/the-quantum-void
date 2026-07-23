@@ -1,0 +1,10 @@
+{
+  "values": {
+    "quantumvoid:void_log": {
+      "stripped_block": "quantumvoid:void_stripped_log"
+    },
+    "quantumvoid:void_wood": {
+      "stripped_block": "quantumvoid:void_stripped_wood"
+    }
+  }
+}
