@@ -2,5 +2,12 @@
   "itemGroup.quantumvoid": "The Quantum Void",
   "block.quantumvoid.quantum_portal_frame": "Quantum Portal Frame",
   "block.quantumvoid.quantum_portal": "Quantum Portal",
-  "item.quantumvoid.quantum_pearl": "Quantum Pearl"
+  "item.quantumvoid.quantum_pearl": "Quantum Pearl",
+  "block.quantumvoid.void_dirt": "Void Dirt",
+  "block.quantumvoid.void_grass": "Void Grass",
+  "block.quantumvoid.void_sand": "Void Sand",
+  "block.quantumvoid.void_log": "Void Log",
+  "block.quantumvoid.void_leaves": "Void Leaves",
+  "block.quantumvoid.void_diamond_block": "Void Diamond Block",
+  "block.quantumvoid.void_emerald_block": "Void Emerald Block"
 }

@@ -48,6 +48,12 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
 - ~~Passive +1 channel per adjacent block~~ — **superseded**: AE2's public `appeng.api.networking.pathing.IPathingService` is read-only (no hook to inject bonus channel capacity), and channels are fundamentally a cable-topology property, not a per-block flag, so the original mechanic doesn't map onto AE2's model at all.
 - Revised: Void Sky Stone is an alternate cable block — it hosts a grid node and carries channels itself (like AE2's own dense cable), via the same public cable-hosting API (`IInWorldGridNodeHost`, `GridHelper`) AE2 uses internally for `CableBusBlock`. A stylish structural cable variant, not a stacking bonus.
 
+**Terrain block family**
+- Void Dirt / Void Grass / Void Sand / Void Log / Void Leaves / Void Diamond Block / Void Emerald Block — purely aesthetic for now, no special mechanics (growth, spread, crafting uses) locked in yet; that's a later pass once the resource-farming loop is designed.
+- Surface layering: Void Grass on top, Void Dirt for the next few blocks down, Sky Stone underneath (standard floor/depth surface rule).
+- Void Diamond/Emerald Block scatter as rare ore-style deposits within Sky Stone, not mined ores — they're already the final block.
+- Void trees scatter sparsely on Void Grass (straight trunk, blob foliage — plain aesthetic placeholder, no fruit/drop behavior yet).
+
 ## Structures
 
 **Minor structures (mid-tier islands)** — small family, 4 variants:
