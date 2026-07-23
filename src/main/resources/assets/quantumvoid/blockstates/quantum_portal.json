@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "quantumvoid:block/quantum_portal" }
+  }
+}

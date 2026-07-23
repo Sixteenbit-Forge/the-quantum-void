@@ -1,0 +1,12 @@
+{
+  "type": "quantumvoid:quantum_void",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "minecraft:the_void",
+      "lakes": false,
+      "features": false,
+      "layers": []
+    }
+  }
+}

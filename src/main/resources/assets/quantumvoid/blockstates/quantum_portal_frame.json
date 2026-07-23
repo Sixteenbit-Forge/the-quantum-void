@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "filled=false": { "model": "quantumvoid:block/quantum_portal_frame" },
+    "filled=true": { "model": "quantumvoid:block/quantum_portal_frame_filled" }
+  }
+}
