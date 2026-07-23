@@ -12,7 +12,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
@@ -34,26 +33,26 @@ public class QuantumVoid {
 
     // Phase 0: consumed by a Quantum Portal Frame to activate it. Linking (pearl pairing)
     // is not implemented yet — activation currently teleports to a fixed destination.
-    public static final DeferredItem<Item> QUANTUM_PEARL = ITEMS.registerSimpleItem("quantum_pearl", new Item.Properties());
+    public static final DeferredItem<Item> QUANTUM_PEARL = ITEMS.registerSimpleItem("quantum_pearl", p -> p);
 
-    public static final DeferredBlock<QuantumPortalFrameBlock> QUANTUM_PORTAL_FRAME = BLOCKS.register("quantum_portal_frame",
-            () -> new QuantumPortalFrameBlock(BlockBehaviour.Properties.of()
-                    .mapColor(MapColor.COLOR_LIGHT_BLUE)
+    public static final DeferredBlock<QuantumPortalFrameBlock> QUANTUM_PORTAL_FRAME = BLOCKS.registerBlock("quantum_portal_frame",
+            QuantumPortalFrameBlock::new,
+            p -> p.mapColor(MapColor.COLOR_LIGHT_BLUE)
                     .requiresCorrectToolForDrops()
                     .strength(50.0f, 1200.0f)
-                    .lightLevel(state -> 4)));
+                    .lightLevel(state -> 4));
     public static final DeferredItem<BlockItem> QUANTUM_PORTAL_FRAME_ITEM = ITEMS.registerSimpleBlockItem("quantum_portal_frame", QUANTUM_PORTAL_FRAME);
 
     // The interior "you're inside the portal now" block. Not directly obtainable — no BlockItem.
-    public static final DeferredBlock<QuantumPortalBlock> QUANTUM_PORTAL = BLOCKS.register("quantum_portal",
-            () -> new QuantumPortalBlock(BlockBehaviour.Properties.of()
-                    .mapColor(MapColor.COLOR_CYAN)
-                    .noCollission()
+    public static final DeferredBlock<QuantumPortalBlock> QUANTUM_PORTAL = BLOCKS.registerBlock("quantum_portal",
+            QuantumPortalBlock::new,
+            p -> p.mapColor(MapColor.COLOR_CYAN)
+                    .noCollision()
                     .noLootTable()
                     .lightLevel(state -> 11)
                     .sound(net.minecraft.world.level.block.SoundType.GLASS)
                     .pushReaction(PushReaction.BLOCK)
-                    .strength(-1.0f, 3600000.0f)));
+                    .strength(-1.0f, 3600000.0f));
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> QUANTUM_VOID_TAB = CREATIVE_MODE_TABS.register("quantum_void_tab",
             () -> CreativeModeTab.builder()

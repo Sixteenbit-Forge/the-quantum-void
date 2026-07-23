@@ -40,7 +40,7 @@ public class QuantumPortalFrameBlock extends Block {
 
     public QuantumPortalFrameBlock(Properties properties) {
         super(properties);
-        registerDefaultState(defaultBlockState().setValue(FILLED, false));
+        registerDefaultState(stateDefinition.any().setValue(FILLED, false));
     }
 
     @Override

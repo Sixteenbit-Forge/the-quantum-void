@@ -5,6 +5,7 @@ import com.quantumvoid.dimension.QuantumVoidDimension;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -24,7 +25,8 @@ public class QuantumPortalBlock extends Block {
     }
 
     @Override
-    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity,
+            InsideBlockEffectApplier effectApplier, boolean isFirstTick) {
         if (!(level instanceof ServerLevel serverLevel) || entity.isOnPortalCooldown()) {
             return;
         }
@@ -38,7 +40,7 @@ public class QuantumPortalBlock extends Block {
         }
 
         Vec3 arrivalPos = inQuantumVoid
-                ? Vec3.atCenterOf(destination.getSharedSpawnPos())
+                ? new Vec3(QuantumVoidDimension.OVERWORLD_ARRIVAL_X, QuantumVoidDimension.OVERWORLD_ARRIVAL_Y, QuantumVoidDimension.OVERWORLD_ARRIVAL_Z)
                 : new Vec3(QuantumVoidDimension.ARRIVAL_X, QuantumVoidDimension.ARRIVAL_Y, QuantumVoidDimension.ARRIVAL_Z);
 
         entity.setPortalCooldown();

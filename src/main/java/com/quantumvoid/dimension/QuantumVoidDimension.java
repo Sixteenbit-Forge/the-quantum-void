@@ -12,10 +12,14 @@ public final class QuantumVoidDimension {
     public static final ResourceKey<Level> LEVEL_KEY = ResourceKey.create(Registries.DIMENSION,
             Identifier.fromNamespaceAndPath(QuantumVoid.MODID, "quantum_void"));
 
-    // Phase 0: fixed arrival point until Quantum Pearl linking is implemented.
+    // Phase 0: fixed arrival points until Quantum Pearl linking is implemented.
     public static final double ARRIVAL_X = 0.5;
     public static final double ARRIVAL_Y = 100.0;
     public static final double ARRIVAL_Z = 0.5;
+
+    public static final double OVERWORLD_ARRIVAL_X = 0.5;
+    public static final double OVERWORLD_ARRIVAL_Y = 100.0;
+    public static final double OVERWORLD_ARRIVAL_Z = 0.5;
 
     private QuantumVoidDimension() {
     }
