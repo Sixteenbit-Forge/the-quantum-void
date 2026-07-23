@@ -25,7 +25,7 @@
     "vein_gap": 0.0,
     "continents": 0.0,
     "depth": 0.0,
-    "erosion": 0.0,
+    "erosion": "quantumvoid:motherboard_gate",
     "final_density": "quantumvoid:final_density",
     "preliminary_surface_level": 0.0,
     "ridges": 0.0,

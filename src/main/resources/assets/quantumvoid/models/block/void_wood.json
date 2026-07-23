@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "quantumvoid:block/void_log",
+    "side": "quantumvoid:block/void_log"
+  }
+}

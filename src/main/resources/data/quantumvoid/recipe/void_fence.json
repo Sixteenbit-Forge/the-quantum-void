@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "quantumvoid:void_planks",
+    "|": "minecraft:stick"
+  },
+  "pattern": [
+    "#|#",
+    "#|#"
+  ],
+  "result": {
+    "id": "quantumvoid:void_fence",
+    "count": 3
+  }
+}

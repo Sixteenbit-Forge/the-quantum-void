@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "quantumvoid:block/void_stripped_log"
+    },
+    "axis=z": {
+      "model": "quantumvoid:block/void_stripped_log",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "quantumvoid:block/void_stripped_log",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

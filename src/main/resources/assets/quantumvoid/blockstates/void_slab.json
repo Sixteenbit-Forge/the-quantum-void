@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "quantumvoid:block/void_slab"
+    },
+    "type=top": {
+      "model": "quantumvoid:block/void_slab_top"
+    },
+    "type=double": {
+      "model": "quantumvoid:block/void_planks"
+    }
+  }
+}

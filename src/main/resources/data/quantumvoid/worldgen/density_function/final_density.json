@@ -40,7 +40,11 @@
                     "argument2": {
                       "type": "minecraft:add",
                       "argument1": -0.13,
-                      "argument2": "quantumvoid:base_3d_noise"
+                      "argument2": {
+                        "type": "minecraft:add",
+                        "argument1": "quantumvoid:base_3d_noise",
+                        "argument2": "quantumvoid:motherboard_bonus"
+                      }
                     }
                   }
                 }

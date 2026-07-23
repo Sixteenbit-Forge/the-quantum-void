@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "quantumvoid:block/void_planks",
+    "top": "quantumvoid:block/void_planks",
+    "side": "quantumvoid:block/void_planks"
+  }
+}
