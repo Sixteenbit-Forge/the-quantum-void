@@ -1,12 +1,12 @@
 {
   "type": "quantumvoid:quantum_void",
   "generator": {
-    "type": "minecraft:flat",
-    "settings": {
-      "biome": "minecraft:the_void",
-      "lakes": false,
-      "features": false,
-      "layers": []
+    "type": "minecraft:noise",
+    "seed": 0,
+    "settings": "quantumvoid:quantum_void",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "minecraft:the_end"
     }
   }
 }
