@@ -50,6 +50,7 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
 - ~~Passive +1 channel per adjacent block~~ — **superseded**: AE2's public `appeng.api.networking.pathing.IPathingService` is read-only (no hook to inject bonus channel capacity), and channels are fundamentally a cable-topology property, not a per-block flag, so the original mechanic doesn't map onto AE2's model at all.
 - Revised: Void Sky Stone is an alternate cable block — it hosts a grid node and carries channels itself (like AE2's own dense cable), via the same public cable-hosting API (`IInWorldGridNodeHost`, `GridHelper`) AE2 uses internally for `CableBusBlock`. A stylish structural cable variant, not a stacking bonus.
 - Implemented: `VoidSkyStoneBlockEntity` implements `IInWorldGridNodeHost` directly (not AE2's `appeng.blockentity.grid.AENetworkedBlockEntity` convenience base — that class lives outside the published `:api` jar this mod compiles against, confirmed by diffing the api jar's contents against the full mod jar). Node created/destroyed via `clearRemoved`/`setRemoved`, configured with `GridFlags.DENSE_CAPACITY`, exposed on all 6 sides. Crafted from 1x `ae2:sky_stone_block` + 1x `ae2:fluix_crystal` → 2x.
+- **Bug found and fixed** (while building the ore-tools addon's own network-connected machines, which surfaced the same pattern): implementing `IInWorldGridNodeHost` is not enough on its own — `appeng.api.networking.GridHelper#getNodeHost` finds hosts via `level.getCapability(AECapabilities.IN_WORLD_GRID_NODE_HOST, pos, null)`, a block-position *capability* lookup, not an `instanceof` scan. Without also calling `event.registerBlockEntity(AECapabilities.IN_WORLD_GRID_NODE_HOST, VOID_SKY_STONE_BLOCK_ENTITY.get(), (be, unused) -> be)` in a `RegisterCapabilitiesEvent` listener, adjacent AE2 cables could never actually discover or connect to it — the block would sit inert despite the interface being fully implemented. Fixed in `QuantumVoid.java`'s constructor.
 
 **Terrain block family**
 - Void Dirt / Void Grass / Void Sand / Void Log / Void Leaves / Void Diamond Block / Void Emerald Block — purely aesthetic for now, no special mechanics (growth, spread, crafting uses) locked in yet; that's a later pass once the resource-farming loop is designed.
@@ -59,14 +60,17 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
 
 ## Structures
 
-**Minor structures (mid-tier islands)** — small family, 4 variants:
-- Server rack ruins — as in brief; light loot (sky stone, quartz, occasional processor).
-- Downed drone wreck — combat-lite, acts as a Fragment spawn nest.
-- Crashed cable-spool husk — light loot, mostly sky stone/quartz, low combat.
-- Processor silo — best minor-structure loot, rarer than the other three, guarded by more Fragments.
+**Implementation note — Feature-based, not the vanilla Structure/StructurePiece pipeline**
+- All 5 structures below are implemented as custom world-gen `Feature`s (`com.quantumvoid.structure.*`, extending a shared `AbstractRuinFeature` with `fillBox`/`hollowBox`/`placeLootChest`/`spawnGuard` helpers), placed via ordinary `placed_feature` + biome-features-array wiring — the same proven mechanism already used for ore/quartz/tree scatter — rather than the full vanilla `Structure`/`StructureType`/`StructurePiece`/`StructureSet` pipeline. Same "find a small ruin with loot and guards" player-facing outcome; deliberately lower-risk given no NBT structure templates could be hand-authored without in-game structure-block access, and the full Structure pipeline is one of the most failure-prone corners of data-driven world-gen. Revisit as real hand-built NBT templates + proper Structure registration if/when the rooms need to be less proc-gen-boxy.
+
+**Minor structures (mid-tier islands)** — small family, 4 variants, all on the regular `quantum_void` biome via `SURFACE_STRUCTURES` feature slot, rarity via `minecraft:rarity_filter`:
+- Server rack ruins — light loot (sky stone, quartz, occasional Void Diamond Block), no guards. `chance: 30`.
+- Downed drone wreck — combat-lite, 2 Fragment guards (1 melee, 1 ranged). `chance: 35`.
+- Crashed cable-spool husk — light loot, 50% chance of 1 guard. `chance: 35`.
+- Processor silo — best minor-structure loot (2 chests), rarer than the other three, guarded by 3 Fragments. `chance: 60`.
 
 **Capstone structure**
-- "The Fractured Core" — boss-guarded, rare large ("motherboard") island only. Guaranteed flawless budding certus cluster + a unique precursor item feeding AE2's Singularity crafting chain. (Item name/mechanic still open.)
+- "The Fractured Core" — boss-guarded, motherboard-island only (`quantum_void_motherboard` biome, `chance: 6` within that already-rare biome). Places a guaranteed `ae2:flawless_budding_quartz` block and spawns the Fractured Core boss directly. The precursor item is the Singularity Seed (guaranteed boss drop, not structure loot — see below).
 
 ## Mobs — Fragments
 

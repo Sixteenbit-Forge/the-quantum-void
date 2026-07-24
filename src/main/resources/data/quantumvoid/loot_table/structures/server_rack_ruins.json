@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": { "type": "minecraft:uniform", "min": 2, "max": 4 },
+      "entries": [
+        
+        { "type": "minecraft:item", "name": "ae2:sky_stone_block", "weight": 3 },
+        { "type": "minecraft:item", "name": "ae2:flawed_budding_quartz", "weight": 2 },
+        { "type": "minecraft:item", "name": "quantumvoid:void_diamond_block", "weight": 1 }
+      ]
+    }
+  ]
+}

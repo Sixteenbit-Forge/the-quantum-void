@@ -15,6 +15,11 @@ import com.quantumvoid.entity.AbstractFragmentEntity;
 import com.quantumvoid.entity.FragmentBoltEntity;
 import com.quantumvoid.entity.FragmentMeleeEntity;
 import com.quantumvoid.entity.FragmentRangedEntity;
+import com.quantumvoid.structure.CableSpoolHuskFeature;
+import com.quantumvoid.structure.DroneWreckFeature;
+import com.quantumvoid.structure.FracturedCoreFeature;
+import com.quantumvoid.structure.ProcessorSiloFeature;
+import com.quantumvoid.structure.ServerRackRuinsFeature;
 import com.quantumvoid.worldgen.RegistryDrivenOreFeature;
 
 import net.minecraft.core.registries.Registries;
@@ -95,6 +100,11 @@ public class QuantumVoid {
     public static final DeferredHolder<MobEffect, MobEffect> CHANNEL_DRAIN = MOB_EFFECTS.register("channel_drain", ChannelDrainEffect::new);
 
     public static final DeferredRegister<net.minecraft.world.level.levelgen.feature.Feature<?>> FEATURES = DeferredRegister.create(Registries.FEATURE, MODID);
+    public static final DeferredHolder<net.minecraft.world.level.levelgen.feature.Feature<?>, ServerRackRuinsFeature> SERVER_RACK_RUINS_FEATURE = FEATURES.register("server_rack_ruins", ServerRackRuinsFeature::new);
+    public static final DeferredHolder<net.minecraft.world.level.levelgen.feature.Feature<?>, DroneWreckFeature> DRONE_WRECK_FEATURE = FEATURES.register("downed_drone_wreck", DroneWreckFeature::new);
+    public static final DeferredHolder<net.minecraft.world.level.levelgen.feature.Feature<?>, CableSpoolHuskFeature> CABLE_SPOOL_HUSK_FEATURE = FEATURES.register("cable_spool_husk", CableSpoolHuskFeature::new);
+    public static final DeferredHolder<net.minecraft.world.level.levelgen.feature.Feature<?>, ProcessorSiloFeature> PROCESSOR_SILO_FEATURE = FEATURES.register("processor_silo", ProcessorSiloFeature::new);
+    public static final DeferredHolder<net.minecraft.world.level.levelgen.feature.Feature<?>, FracturedCoreFeature> FRACTURED_CORE_FEATURE = FEATURES.register("fractured_core", FracturedCoreFeature::new);
 
     // Addon ore world-gen — see docs/DESIGN.md and com.quantumvoid.api.ore.FractureCoreOreRegistry.
     public static final DeferredHolder<net.minecraft.world.level.levelgen.feature.Feature<?>, RegistryDrivenOreFeature> REGISTRY_DRIVEN_ORE_FEATURE =
@@ -261,11 +271,18 @@ public class QuantumVoid {
         BLOCK_ENTITY_TYPES.register(modEventBus);
 
         modEventBus.addListener(this::registerAttributes);
+        modEventBus.addListener(this::registerCapabilities);
     }
 
     private void registerAttributes(net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent event) {
         event.put(FRAGMENT_MELEE.get(), AbstractFragmentEntity.createAttributes().build());
         event.put(FRAGMENT_RANGED.get(), AbstractFragmentEntity.createAttributes().build());
         event.put(FRACTURED_CORE.get(), FracturedCoreEntity.createAttributes().build());
+    }
+
+    private void registerCapabilities(net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent event) {
+        // Needed for adjacent AE2 cables to actually find this block - GridHelper#getNodeHost
+        // does a capability lookup, not an instanceof check.
+        event.registerBlockEntity(appeng.api.AECapabilities.IN_WORLD_GRID_NODE_HOST, VOID_SKY_STONE_BLOCK_ENTITY.get(), (be, unused) -> be);
     }
 }

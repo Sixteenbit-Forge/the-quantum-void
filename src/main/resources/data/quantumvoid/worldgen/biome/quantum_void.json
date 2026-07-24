@@ -10,7 +10,9 @@
   },
   "carvers": [],
   "features": [
-    [], [], [], [], [], [],
+    [], [], [], [],
+    ["quantumvoid:server_rack_ruins", "quantumvoid:downed_drone_wreck", "quantumvoid:cable_spool_husk", "quantumvoid:processor_silo"],
+    [],
     ["quantumvoid:void_diamond_ore", "quantumvoid:void_emerald_ore", "quantumvoid:flawed_budding_quartz", "quantumvoid:addon_ore"],
     [], [],
     ["quantumvoid:void_tree"],
