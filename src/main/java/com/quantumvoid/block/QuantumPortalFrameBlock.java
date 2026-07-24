@@ -26,7 +26,7 @@ public class QuantumPortalFrameBlock extends Block {
 
     // The 4 possible offsets (dx, dz) of this frame block relative to the interior's
     // origin (its lowest-x, lowest-z corner), one per ring side, mirrored for the two
-    // positions along that side. Axis-aligned only — no rotated frames in Phase 0.
+    // positions along that side. Axis-aligned only — no rotated frames.
     private static final int[][] RING_OFFSETS = {
             // North side: interior origin is (this.x, this.z + 1)
             {0, 1}, {-1, 1},

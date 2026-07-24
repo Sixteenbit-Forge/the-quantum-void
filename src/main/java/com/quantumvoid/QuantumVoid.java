@@ -111,8 +111,7 @@ public class QuantumVoid {
     public static final DeferredHolder<net.minecraft.world.level.levelgen.feature.Feature<?>, RegistryDrivenOreFeature> REGISTRY_DRIVEN_ORE_FEATURE =
             FEATURES.register("addon_ore", RegistryDrivenOreFeature::new);
 
-    // Phase 0: consumed by a Quantum Portal Frame to activate it. Linking (pearl pairing)
-    // is not implemented yet — activation currently teleports to a fixed destination.
+    // Consumed by a Quantum Portal Frame to activate it.
     public static final DeferredItem<Item> QUANTUM_PEARL = ITEMS.registerSimpleItem("quantum_pearl", p -> p);
 
     // Guaranteed drop from the Fractured Core boss (see docs/DESIGN.md — "Fractured Core Precursor Item").

@@ -21,9 +21,7 @@ import java.util.Optional;
 /**
  * The interior "you're standing in the portal" block, filled in by
  * {@link QuantumPortalFrameBlock} once a ring is complete. Not directly obtainable.
- * <p>
- * Phase 0: teleports to a fixed destination per direction. Quantum Pearl-based
- * arbitrary linking between specific frame pairs is not implemented yet.
+ * Teleports to a fixed destination per direction.
  */
 public class QuantumPortalBlock extends Block {
     public QuantumPortalBlock(Properties properties) {
@@ -88,8 +86,7 @@ public class QuantumPortalBlock extends Block {
      * The Quantum Void is sparse floating islands, not a guaranteed-solid column like the
      * Overworld — a fixed arrival point can land inside terrain or in open air over nothing.
      * Search outward in the target column, then in a widening ring of nearby columns, for the
-     * first real ground surface (chunk-forced, mirrors the pattern used by a reference project's
-     * a reference project for its own dimension-entry landing search) and land on top of it.
+     * first real ground surface (chunk-forced) and land on top of it.
      */
     private static final int EDGE_CLEARANCE = 5;
 

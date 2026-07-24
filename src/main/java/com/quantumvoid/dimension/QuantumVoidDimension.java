@@ -12,7 +12,7 @@ public final class QuantumVoidDimension {
     public static final ResourceKey<Level> LEVEL_KEY = ResourceKey.create(Registries.DIMENSION,
             Identifier.fromNamespaceAndPath(QuantumVoid.MODID, "quantum_void"));
 
-    // Phase 0: nominal arrival point until Quantum Pearl linking is implemented.
+    // Nominal arrival point for portal travel without a linked pearl pair.
     // QuantumPortalBlock randomizes the actual landing column around this point
     // rather than using it directly — in the end_islands density function we
     // reuse for terrain shaping, the origin (0,0) is specifically the dominant

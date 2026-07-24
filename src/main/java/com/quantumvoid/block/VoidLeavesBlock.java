@@ -22,6 +22,6 @@ public class VoidLeavesBlock extends LeavesBlock {
 
     @Override
     protected void spawnFallingLeavesParticle(Level level, BlockPos pos, RandomSource random) {
-        // No ambient falling-leaves particle for Phase 1 — purely decorative block for now.
+        // Purely decorative block — no ambient falling-leaves particle.
     }
 }
