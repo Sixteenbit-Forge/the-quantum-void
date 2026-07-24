@@ -109,7 +109,7 @@ public class QuantumPortalFrameBlock extends Block {
             }
         }
         if (linkId != 0 && level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
-            QuantumPortalLinkRegistry.register(linkId, serverLevel.dimension(), interiorOrigin);
+            QuantumPortalLinkRegistry.register(serverLevel, linkId, serverLevel.dimension(), interiorOrigin);
         }
         level.playSound(null, interiorOrigin, SoundEvents.END_PORTAL_SPAWN, SoundSource.BLOCKS, 1.0f, 1.0f);
     }

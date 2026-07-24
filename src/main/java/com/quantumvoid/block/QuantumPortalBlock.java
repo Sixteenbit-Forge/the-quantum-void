@@ -46,7 +46,7 @@ public class QuantumPortalBlock extends Block implements EntityBlock {
         }
 
         long linkId = level.getBlockEntity(pos) instanceof QuantumPortalBlockEntity portalBe ? portalBe.linkId() : 0L;
-        Optional<GlobalPos> linkedDestination = QuantumPortalLinkRegistry.findOtherEnd(linkId, serverLevel.dimension(), pos);
+        Optional<GlobalPos> linkedDestination = QuantumPortalLinkRegistry.findOtherEnd(serverLevel, linkId, serverLevel.dimension(), pos);
         if (linkedDestination.isPresent()) {
             GlobalPos target = linkedDestination.get();
             ServerLevel destinationLevel = serverLevel.getServer().getLevel(target.dimension());

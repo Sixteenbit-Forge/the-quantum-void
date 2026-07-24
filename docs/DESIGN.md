@@ -40,9 +40,14 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
   falling back to the existing fixed-direction/randomized-landing logic — which still runs
   unchanged whenever there's no link (an unlinked pearl-filled frame, or no linked destination
   registered yet).
-- **In-memory only — does not persist across a server restart.** A real `SavedData`-backed
-  registry (this MC version's codec-based `SavedDataType`) would fix that; skipped for scope,
-  a real gap, not an oversight.
+- **Persists across a server restart.** `QuantumPortalLinkRegistry` is backed by
+  `QuantumPortalLinkData extends SavedData`, registered via this MC version's codec-based
+  `SavedDataType` (`GlobalPos.CODEC` for each entry's position, a plain `List` of link-id/pos
+  pairs rather than an `unboundedMap` — a `long` key doesn't serialize cleanly as a map key in
+  this codec setup, so the list is decoded into a `Map` at load time instead). Always kept on
+  the **overworld's** data storage (`level.getServer().overworld().getDataStorage()`) regardless
+  of which dimension a given link was actually made in, so a Quantum Void-side and
+  Overworld-side portal both resolve to the same storage.
 
 **Portal recolor — cyan/fluix, not vanilla purple**
 - `QuantumPortalBlock` was a plain solid-cube `Block` with no ambient particles at all. Its
@@ -148,7 +153,12 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
   block and spawns a real Fragment (melee or ranged, chosen randomly) in its place instead of
   advancing further — the same `snapTo`/`finalizeSpawn`/`addFreshEntity` sequence structures
   already use for guard spawns. Requires a sturdy floor beneath it, same support check as the
-  crystal-style blocks elsewhere in the addon; not placed by world-gen yet, hand/creative only.
+  crystal-style blocks elsewhere in the addon. Scatters via a `minecraft:simple_block`
+  configured/placed feature (`heightmap: MOTION_BLOCKING` placement, same mechanism vanilla
+  flowers use) added directly to both biomes' own feature arrays at the `vegetal_decoration`
+  step, alongside `void_tree` — this is the mod's own block in its own biome files, so no
+  cross-mod biome-modifier indirection was needed the way the addon's crystal clusters/pillars
+  require. Rarity chance 48.
 
 ## Boss — Fractured Core
 
@@ -185,9 +195,10 @@ The mod exposes a small, stable `com.quantumvoid.api` package for external addon
 - Exact tuning numbers: Fragment drain stacking cap/magnitude, boss health, phase sequencing/triggers
 - Motherboard-biome rarity/size numbers — first-pass placeholder, not yet observed in a live world
 - Real AE2 hook for reducing wireless terminal range (channel-drain currently uses a generic speed/attack-speed penalty instead)
-- `QuantumPortalLinkRegistry` doesn't persist across a server restart (in-memory only)
-- No world-gen placement for Fragment Cocoon — hand/creative only
 - Client-side play-through of the corrected Quantum Pearl pairing recipe and portal-linking
-  flow (craft a pair, build both frames, confirm the link actually routes correctly) is
-  unverified beyond compile/boot — only the fallback (unlinked) portal path has been used
-  live so far.
+  flow (craft a pair, build both frames, confirm the link actually routes correctly, confirm
+  it still resolves after a real server restart) is unverified beyond compile/boot — only the
+  fallback (unlinked) portal path has been used live so far.
+- Fragment Cocoon's and the addon's crystal cluster/pillar world-gen scatter are verified only
+  at the schema level (`runServer` loads with no registry errors) — actual live chunk
+  generation producing one in a played world hasn't been independently confirmed.
