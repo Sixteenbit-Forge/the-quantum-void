@@ -24,6 +24,7 @@
   "block.quantumvoid.void_button": "Void Button",
   "item.quantumvoid.singularity_seed": "Singularity Seed",
   "block.quantumvoid.void_sky_stone": "Void Sky Stone",
+  "block.quantumvoid.fragment_cocoon": "Fragment Cocoon",
   "entity.quantumvoid.fragment_melee": "Fragment",
   "entity.quantumvoid.fragment_ranged": "Fragment",
   "entity.quantumvoid.fragment_bolt": "Fragment Bolt",

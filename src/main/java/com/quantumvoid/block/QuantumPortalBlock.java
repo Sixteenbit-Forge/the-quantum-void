@@ -3,14 +3,18 @@ package com.quantumvoid.block;
 import com.quantumvoid.QuantumVoid;
 import com.quantumvoid.api.event.QuantumPortalTravelEvent;
 import com.quantumvoid.dimension.QuantumVoidDimension;
+import com.quantumvoid.portal.QuantumPortalLinkRegistry;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.portal.TeleportTransition;
@@ -21,11 +25,17 @@ import java.util.Optional;
 /**
  * The interior "you're standing in the portal" block, filled in by
  * {@link QuantumPortalFrameBlock} once a ring is complete. Not directly obtainable.
- * Teleports to a fixed destination per direction.
+ * Teleports to the other end of its Quantum Pearl link if one exists (see
+ * {@link QuantumPortalLinkRegistry}), otherwise falls back to a fixed destination per direction.
  */
-public class QuantumPortalBlock extends Block {
+public class QuantumPortalBlock extends Block implements EntityBlock {
     public QuantumPortalBlock(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new QuantumPortalBlockEntity(pos, state);
     }
 
     @Override
@@ -33,6 +43,20 @@ public class QuantumPortalBlock extends Block {
             InsideBlockEffectApplier effectApplier, boolean isFirstTick) {
         if (!(level instanceof ServerLevel serverLevel) || entity.isOnPortalCooldown()) {
             return;
+        }
+
+        long linkId = level.getBlockEntity(pos) instanceof QuantumPortalBlockEntity portalBe ? portalBe.linkId() : 0L;
+        Optional<GlobalPos> linkedDestination = QuantumPortalLinkRegistry.findOtherEnd(linkId, serverLevel.dimension(), pos);
+        if (linkedDestination.isPresent()) {
+            GlobalPos target = linkedDestination.get();
+            ServerLevel destinationLevel = serverLevel.getServer().getLevel(target.dimension());
+            if (destinationLevel != null) {
+                entity.setPortalCooldown();
+                entity.teleport(new TeleportTransition(destinationLevel, Vec3.atCenterOf(target.pos()), Vec3.ZERO,
+                        entity.getYRot(), entity.getXRot(), TeleportTransition.DO_NOTHING));
+                QuantumPortalTravelEvent.post(entity, serverLevel, destinationLevel, destinationLevel.dimension() != QuantumVoidDimension.LEVEL_KEY);
+                return;
+            }
         }
 
         boolean inQuantumVoid = serverLevel.dimension() == QuantumVoidDimension.LEVEL_KEY;

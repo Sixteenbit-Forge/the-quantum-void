@@ -1,6 +1,8 @@
 package com.quantumvoid.block;
 
 import com.quantumvoid.QuantumVoid;
+import com.quantumvoid.component.QuantumComponents;
+import com.quantumvoid.portal.QuantumPortalLinkRegistry;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -50,6 +52,7 @@ public class QuantumPortalFrameBlock extends Block {
             return super.useItemOn(heldItem, state, level, pos, player, hand, hit);
         }
 
+        long linkId = heldItem.getOrDefault(QuantumComponents.PEARL_LINK.get(), 0L);
         if (!player.getAbilities().instabuild) {
             heldItem.shrink(1);
         }
@@ -57,7 +60,7 @@ public class QuantumPortalFrameBlock extends Block {
         level.playSound(null, pos, SoundEvents.END_PORTAL_FRAME_FILL, SoundSource.BLOCKS, 1.0f, 1.0f);
 
         if (!level.isClientSide()) {
-            tryFormPortal(level, pos);
+            tryFormPortal(level, pos, linkId);
         }
         return InteractionResult.SUCCESS;
     }
@@ -68,11 +71,11 @@ public class QuantumPortalFrameBlock extends Block {
         builder.add(FILLED);
     }
 
-    private void tryFormPortal(Level level, BlockPos filledFramePos) {
+    private void tryFormPortal(Level level, BlockPos filledFramePos, long linkId) {
         for (int[] offset : RING_OFFSETS) {
             BlockPos interiorOrigin = filledFramePos.offset(offset[0], 0, offset[1]);
             if (ringIsComplete(level, interiorOrigin) && interiorIsClear(level, interiorOrigin)) {
-                fillInterior(level, interiorOrigin);
+                fillInterior(level, interiorOrigin, linkId);
                 return;
             }
         }
@@ -97,10 +100,16 @@ public class QuantumPortalFrameBlock extends Block {
         return true;
     }
 
-    private void fillInterior(Level level, BlockPos interiorOrigin) {
+    private void fillInterior(Level level, BlockPos interiorOrigin, long linkId) {
         BlockState portal = QuantumVoid.QUANTUM_PORTAL.get().defaultBlockState();
         for (BlockPos interiorPos : interiorPositions(interiorOrigin)) {
             level.setBlock(interiorPos, portal, 3);
+            if (linkId != 0 && level.getBlockEntity(interiorPos) instanceof QuantumPortalBlockEntity portalBe) {
+                portalBe.setLinkId(linkId);
+            }
+        }
+        if (linkId != 0 && level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            QuantumPortalLinkRegistry.register(linkId, serverLevel.dimension(), interiorOrigin);
         }
         level.playSound(null, interiorOrigin, SoundEvents.END_PORTAL_SPAWN, SoundSource.BLOCKS, 1.0f, 1.0f);
     }

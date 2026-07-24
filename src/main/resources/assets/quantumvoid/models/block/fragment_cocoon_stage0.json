@@ -1,0 +1,21 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "quantumvoid:block/fragment_cocoon_stage0",
+    "texture": "quantumvoid:block/fragment_cocoon_stage0"
+  },
+  "elements": [
+    {
+      "from": [4, 0, 4],
+      "to": [12, 10, 12],
+      "faces": {
+        "down":  { "uv": [4, 4, 12, 12], "texture": "#texture", "cullface": "down" },
+        "up":    { "uv": [4, 4, 12, 12], "texture": "#texture" },
+        "north": { "uv": [4, 6, 12, 16], "texture": "#texture" },
+        "south": { "uv": [4, 6, 12, 16], "texture": "#texture" },
+        "west":  { "uv": [4, 6, 12, 16], "texture": "#texture" },
+        "east":  { "uv": [4, 6, 12, 16], "texture": "#texture" }
+      }
+    }
+  ]
+}

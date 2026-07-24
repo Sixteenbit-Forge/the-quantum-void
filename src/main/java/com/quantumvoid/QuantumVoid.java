@@ -4,17 +4,20 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 import com.quantumvoid.block.QuantumPortalBlock;
+import com.quantumvoid.block.QuantumPortalBlockEntity;
 import com.quantumvoid.block.QuantumPortalFrameBlock;
 import com.quantumvoid.block.VoidLeavesBlock;
 import com.quantumvoid.block.VoidSandBlock;
 import com.quantumvoid.block.VoidSkyStoneBlock;
 import com.quantumvoid.block.VoidSkyStoneBlockEntity;
 import com.quantumvoid.boss.FracturedCoreEntity;
+import com.quantumvoid.component.QuantumComponents;
 import com.quantumvoid.effect.ChannelDrainEffect;
 import com.quantumvoid.entity.AbstractFragmentEntity;
 import com.quantumvoid.entity.FragmentBoltEntity;
 import com.quantumvoid.entity.FragmentMeleeEntity;
 import com.quantumvoid.entity.FragmentRangedEntity;
+import com.quantumvoid.recipe.QuantumRecipes;
 import com.quantumvoid.structure.CableSpoolHuskFeature;
 import com.quantumvoid.structure.DroneWreckFeature;
 import com.quantumvoid.structure.FracturedCoreFeature;
@@ -50,6 +53,8 @@ import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -232,9 +237,16 @@ public class QuantumVoid {
             VoidSkyStoneBlock::new, p -> p.mapColor(MapColor.COLOR_LIGHT_BLUE).requiresCorrectToolForDrops().strength(3.0f, 6.0f).sound(SoundType.METAL));
     public static final DeferredItem<BlockItem> VOID_SKY_STONE_ITEM = ITEMS.registerSimpleBlockItem("void_sky_stone", VOID_SKY_STONE);
 
+    // Dormant Fragment core that hatches into a real Fragment over time — see docs/DESIGN.md.
+    public static final DeferredBlock<com.quantumvoid.block.FragmentCocoonBlock> FRAGMENT_COCOON = BLOCKS.registerBlock("fragment_cocoon",
+            com.quantumvoid.block.FragmentCocoonBlock::new, p -> p.mapColor(MapColor.COLOR_PURPLE).strength(1.0f, 3.0f).sound(SoundType.AMETHYST_CLUSTER).noCollision());
+    public static final DeferredItem<BlockItem> FRAGMENT_COCOON_ITEM = ITEMS.registerSimpleBlockItem("fragment_cocoon", FRAGMENT_COCOON);
+
     public static final DeferredRegister<net.minecraft.world.level.block.entity.BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MODID);
     public static final DeferredHolder<net.minecraft.world.level.block.entity.BlockEntityType<?>, net.minecraft.world.level.block.entity.BlockEntityType<VoidSkyStoneBlockEntity>> VOID_SKY_STONE_BLOCK_ENTITY =
             BLOCK_ENTITY_TYPES.register("void_sky_stone", () -> new net.minecraft.world.level.block.entity.BlockEntityType<VoidSkyStoneBlockEntity>(VoidSkyStoneBlockEntity::new, VOID_SKY_STONE.get()));
+    public static final DeferredHolder<net.minecraft.world.level.block.entity.BlockEntityType<?>, net.minecraft.world.level.block.entity.BlockEntityType<QuantumPortalBlockEntity>> QUANTUM_PORTAL_BLOCK_ENTITY =
+            BLOCK_ENTITY_TYPES.register("quantum_portal", () -> new net.minecraft.world.level.block.entity.BlockEntityType<QuantumPortalBlockEntity>(QuantumPortalBlockEntity::new, QUANTUM_PORTAL.get()));
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> QUANTUM_VOID_TAB = CREATIVE_MODE_TABS.register("quantum_void_tab",
             () -> CreativeModeTab.builder()
@@ -264,6 +276,7 @@ public class QuantumVoid {
                         output.accept(VOID_DIAMOND_BLOCK_ITEM.get());
                         output.accept(VOID_EMERALD_BLOCK_ITEM.get());
                         output.accept(VOID_SKY_STONE_ITEM.get());
+                        output.accept(FRAGMENT_COCOON_ITEM.get());
                     }).build());
 
     public QuantumVoid(IEventBus modEventBus, ModContainer modContainer) {
@@ -275,9 +288,17 @@ public class QuantumVoid {
         PARTICLE_TYPES.register(modEventBus);
         FEATURES.register(modEventBus);
         BLOCK_ENTITY_TYPES.register(modEventBus);
+        QuantumComponents.DATA_COMPONENTS.register(modEventBus);
+        QuantumRecipes.RECIPE_SERIALIZERS.register(modEventBus);
 
         modEventBus.addListener(this::registerAttributes);
         modEventBus.addListener(this::registerCapabilities);
+
+        // QuantumFogEffects touches client-only rendering types (Camera, ClientLevel) - gate the
+        // reference itself, not just the call, or class verification fails on a dedicated server.
+        if (FMLEnvironment.getDist().isClient()) {
+            NeoForge.EVENT_BUS.addListener(com.quantumvoid.client.QuantumFogEffects::onComputeFogColor);
+        }
     }
 
     private void registerAttributes(net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent event) {

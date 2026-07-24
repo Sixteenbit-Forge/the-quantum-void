@@ -1,0 +1,9 @@
+{
+  "variants": {
+    "stage=0": { "model": "quantumvoid:block/fragment_cocoon_stage0" },
+    "stage=1": { "model": "quantumvoid:block/fragment_cocoon_stage1" },
+    "stage=2": { "model": "quantumvoid:block/fragment_cocoon_stage2" },
+    "stage=3": { "model": "quantumvoid:block/fragment_cocoon_stage3" },
+    "stage=4": { "model": "quantumvoid:block/fragment_cocoon_stage4" }
+  }
+}

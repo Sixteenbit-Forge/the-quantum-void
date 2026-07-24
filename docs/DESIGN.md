@@ -20,6 +20,30 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
 - No ongoing power draw to keep the portal open — avoids Nether-portal-style one-way jank.
 - Breaking the link (pearl destroyed/removed and not replaced) deactivates the portal rather than stranding players; frame can be re-filled with a new linked pair to reactivate.
 
+**Implemented — Quantum Pearl linking (recipe corrected from the original lock-in)**
+- "Quantum Entangled Singularities" was never a real item — the actual recipe implemented is
+  a custom `QuantumPearlPairingRecipe` (2x `minecraft:ender_pearl` + 1x `ae2:fluix_crystal` →
+  2x Quantum Pearl), a `CustomRecipe` rather than a plain shaped/shapeless JSON recipe because
+  the result needs a freshly-generated random link ID baked in at craft time — both output
+  pearls share it automatically since they're the same stack (count 2). A plain crafting-table
+  recipe rather than the brief's "network-connected crafting device with an active, powered
+  Quantum Ring formation" — a deliberate scope-down, that multiblock/network-gated crafting
+  requirement isn't built.
+- The link ID itself is a plain `long` data component (`QuantumComponents.PEARL_LINK`, 0 =
+  unlinked/generic filler pearl). `QuantumPortalFrameBlock` reads whichever pearl completes the
+  ring (the last one placed, not all 8 — the other 7 frame slots accept any Quantum Pearl,
+  linked or not) and threads that link ID through to `QuantumPortalBlock`, which now implements
+  `EntityBlock` purely to carry a `QuantumPortalBlockEntity` remembering its own link ID.
+- `QuantumPortalLinkRegistry` maps a link ID to the most recently completed portal carrying it
+  (dimension + position). When a linked portal's interior block is entered, it looks itself up
+  in the registry for a different location than itself and teleports there directly instead of
+  falling back to the existing fixed-direction/randomized-landing logic — which still runs
+  unchanged whenever there's no link (an unlinked pearl-filled frame, or no linked destination
+  registered yet).
+- **In-memory only — does not persist across a server restart.** A real `SavedData`-backed
+  registry (this MC version's codec-based `SavedDataType`) would fix that; skipped for scope,
+  a real gap, not an oversight.
+
 **Portal recolor — cyan/fluix, not vanilla purple**
 - `QuantumPortalBlock` was a plain solid-cube `Block` with no ambient particles at all. Its
   `MapColor.COLOR_CYAN` (map-item tint) already signaled cyan intent even though the actual
@@ -54,6 +78,14 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
 - `final_density` rebuilt again: real floating terrain with varied peaks and gradual (not cliff-like) tapering, via a dual height-taper (density narrows both near the base and near the top) wrapped around `quantumvoid:base_3d_noise`, `data/quantumvoid/worldgen/density_function/final_density.json`. Naturally produces multiple separated islands without needing a separate placement layer.
 - ~~Island tier shaping (small vs. rare "motherboard") not yet tuned.~~ Implemented — see "Island tiers" below.
 - Portal arrival: destination column is randomized within a wide range rather than fixed, landing search widened and requires flat clearance in all four directions before accepting a spot (no more edge-of-cliff spawns), with a guaranteed-solid fallback point if the random search comes up empty.
+- **Reactive fog near the Fractured Core**: the static `fog_color` above is the dimension's
+  ambient default, but `QuantumFogEffects` (client-only, hooks NeoForge's
+  `ViewportEvent.ComputeFogColor`) blends the fog toward a warning-red tint the closer the
+  camera gets to a live `FracturedCoreEntity`, within a 64-block radius, fully back to the
+  ambient default outside it. No dimension-level Java class exists for this in this MC version
+  the way older per-dimension "special effects" registration classes historically worked — sky/
+  fog here is otherwise entirely the data-driven `dimension_type` attributes above; this is a
+  client-side rendering-event override layered on top, not a replacement for that system.
 
 **Budding certus quartz**
 - Two tiers: common non-flawless budding clusters scatter naturally on islands (ambient resource, no exploration gate); guaranteed flawless cluster reserved for structure loot (minor ruins + guaranteed at the Fractured Core).
@@ -109,6 +141,15 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
 - Implemented: `ChannelDrainEffect` (`quantumvoid:channel_drain`) applies a movement-speed/attack-speed penalty via `MobEffect.addAttributeModifier`. The actual "reduces wireless terminal range" hook into AE2 is still open (no public API found for it, matching the design note above about `IPathingService` being read-only) — the attribute penalty stands in as the "your network access is compromised" feel for now.
 - Fragment entities (`FragmentMeleeEntity`/`FragmentRangedEntity`) extend a shared `AbstractFragmentEntity extends Monster` using `FlyingMoveControl`/`FlyingPathNavigation` (same pattern as vanilla Bees); visually reuse vanilla's `EndermiteModel` geometry (small, segmented, already non-humanoid) with a custom texture rather than a hand-built model — ranged variant fires `FragmentBoltEntity` (a `ThrowableItemProjectile` reusing the Quantum Pearl icon, rendered via vanilla's generic `ThrownItemRenderer`, no new projectile model needed).
 
+**Fragment Cocoon — a growth-stage spawner block**
+- `FragmentCocoonBlock` visibly progresses through 5 `stage` block-state values (like a turtle
+  egg) via `randomTick`, each stage swapping to a distinct model/texture with more visible
+  glowing cracks. On reaching the final stage, the next successful random tick removes the
+  block and spawns a real Fragment (melee or ranged, chosen randomly) in its place instead of
+  advancing further — the same `snapTo`/`finalizeSpawn`/`addFreshEntity` sequence structures
+  already use for guard spawns. Requires a sturdy floor beneath it, same support check as the
+  crystal-style blocks elsewhere in the addon; not placed by world-gen yet, hand/creative only.
+
 ## Boss — Fractured Core
 
 **Identity**
@@ -144,3 +185,9 @@ The mod exposes a small, stable `com.quantumvoid.api` package for external addon
 - Exact tuning numbers: Fragment drain stacking cap/magnitude, boss health, phase sequencing/triggers
 - Motherboard-biome rarity/size numbers — first-pass placeholder, not yet observed in a live world
 - Real AE2 hook for reducing wireless terminal range (channel-drain currently uses a generic speed/attack-speed penalty instead)
+- `QuantumPortalLinkRegistry` doesn't persist across a server restart (in-memory only)
+- No world-gen placement for Fragment Cocoon — hand/creative only
+- Client-side play-through of the corrected Quantum Pearl pairing recipe and portal-linking
+  flow (craft a pair, build both frames, confirm the link actually routes correctly) is
+  unverified beyond compile/boot — only the fallback (unlinked) portal path has been used
+  live so far.
