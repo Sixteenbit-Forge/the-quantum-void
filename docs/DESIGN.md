@@ -20,6 +20,34 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
 - No ongoing power draw to keep the portal open — avoids Nether-portal-style one-way jank.
 - Breaking the link (pearl destroyed/removed and not replaced) deactivates the portal rather than stranding players; frame can be re-filled with a new linked pair to reactivate.
 
+**Portal recolor — cyan/fluix, not vanilla purple**
+- `QuantumPortalBlock` predates this change as a plain solid-cube `Block` (no `AXIS` property
+  unlike vanilla's thin portal slab or a reference project's, and no ambient particles at all). Its
+  `MapColor.COLOR_CYAN` (map-item tint) already signaled cyan intent even though the actual
+  block texture was purple/violet up to this point — an inconsistency, now resolved.
+- Investigated how a reference project (a reference project, browsed read-only, no code copied — no
+  permissive license on that repo so concepts only, not literal reuse) recolors the vanilla
+  Nether Portal concept to green: it's not a texture swap on the vanilla block at all, it's a
+  fully separate `Block implements Portal` with its own animated texture, **and** a custom
+  `PortalParticle` subclass whose provider calls `setColor(r, g, b)` on each spawned particle —
+  vanilla's own portal particles get their purple from `ParticleTypes.PORTAL`'s built-in random
+  purple-ish tint, so a distinct particle type is required to override it, texture recolor alone
+  isn't enough for the ambient-particle color.
+- Applied to our own portal: `quantum_portal.png` hue-shifted (HSV rotate, ~275°→~187°) from
+  purple to cyan — a transform of our own original texture, not a copy of anyone else's asset.
+  Added a new `quantumvoid:quantum_portal` `SimpleParticleType` (`QuantumVoid.PARTICLE_TYPES`),
+  a client-only `QuantumPortalParticle` (`client` package, extends vanilla `PortalParticle`,
+  `setColor(0.15F, 0.85F, 0.9F)`) registered via `RegisterParticleProvidersEvent` in
+  `ClientSetup` (same `@EventBusSubscriber(value = Dist.CLIENT)` pattern already used for entity
+  renderers), and an `animateTick` override on `QuantumPortalBlock` spawning 4 particles/tick at
+  random positions in the block's volume (no frame-plane to hug, since this block is a full cube,
+  unlike vanilla's/a reference project's thin directional slab). The particle sprite itself is reused
+  directly from vanilla (`assets/quantumvoid/particles/quantum_portal.json` → the same
+  `minecraft:generic_0..7` soft-glow sprite set vanilla's own portal particles use) — only the
+  color is ours, no new sprite asset needed.
+- Verified via `compileJava` plus live `runServer`/`runClient` boots — particle atlas builds
+  clean, particle provider subscribes correctly, no missing-resource warnings.
+
 ## World Generation
 
 **Chunk generator — CORRECTED from initial lock-in**

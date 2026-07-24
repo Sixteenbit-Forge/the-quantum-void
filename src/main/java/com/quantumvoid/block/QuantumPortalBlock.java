@@ -1,10 +1,12 @@
 package com.quantumvoid.block;
 
+import com.quantumvoid.QuantumVoid;
 import com.quantumvoid.api.event.QuantumPortalTravelEvent;
 import com.quantumvoid.dimension.QuantumVoidDimension;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.level.Level;
@@ -64,6 +66,22 @@ public class QuantumPortalBlock extends Block {
         entity.teleport(new TeleportTransition(destination, arrivalPos, Vec3.ZERO,
                 entity.getYRot(), entity.getXRot(), TeleportTransition.DO_NOTHING));
         QuantumPortalTravelEvent.post(entity, serverLevel, destination, !inQuantumVoid);
+    }
+
+    // Ambient particles, cyan-tinted (see QuantumPortalParticle) rather than vanilla's purple —
+    // this block is a solid full cube (no AXIS property, unlike vanilla's thin portal slab), so
+    // particles just scatter randomly through its volume rather than hugging a frame plane.
+    @Override
+    public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+        for (int i = 0; i < 4; ++i) {
+            double x = pos.getX() + random.nextDouble();
+            double y = pos.getY() + random.nextDouble();
+            double z = pos.getZ() + random.nextDouble();
+            double xSpeed = (random.nextFloat() - 0.5D) * 0.5D;
+            double ySpeed = (random.nextFloat() - 0.5D) * 0.5D;
+            double zSpeed = (random.nextFloat() - 0.5D) * 0.5D;
+            level.addParticle(QuantumVoid.QUANTUM_PORTAL_PARTICLE.get(), x, y, z, xSpeed, ySpeed, zSpeed);
+        }
     }
 
     /**

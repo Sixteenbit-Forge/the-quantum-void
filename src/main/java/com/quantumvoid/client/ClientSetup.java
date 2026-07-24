@@ -9,6 +9,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 
 @EventBusSubscriber(modid = QuantumVoid.MODID, value = Dist.CLIENT)
 public class ClientSetup {
@@ -18,5 +19,10 @@ public class ClientSetup {
         event.registerEntityRenderer(QuantumVoid.FRAGMENT_RANGED.get(), FragmentRenderer::new);
         event.registerEntityRenderer(QuantumVoid.FRAGMENT_BOLT.get(), ThrownItemRenderer::new);
         event.registerEntityRenderer(QuantumVoid.FRACTURED_CORE.get(), FracturedCoreRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(QuantumVoid.QUANTUM_PORTAL_PARTICLE.get(), QuantumPortalParticle.Provider::new);
     }
 }

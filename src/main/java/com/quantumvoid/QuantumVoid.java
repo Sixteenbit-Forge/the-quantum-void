@@ -65,6 +65,7 @@ public class QuantumVoid {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(Registries.ENTITY_TYPE, MODID);
     public static final DeferredRegister<MobEffect> MOB_EFFECTS = DeferredRegister.create(Registries.MOB_EFFECT, MODID);
+    public static final DeferredRegister<net.minecraft.core.particles.ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(Registries.PARTICLE_TYPE, MODID);
 
     private static ResourceKey<EntityType<?>> entityKey(String name) {
         return ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(MODID, name));
@@ -126,6 +127,11 @@ public class QuantumVoid {
                     .strength(50.0f, 1200.0f)
                     .lightLevel(state -> 4));
     public static final DeferredItem<BlockItem> QUANTUM_PORTAL_FRAME_ITEM = ITEMS.registerSimpleBlockItem("quantum_portal_frame", QUANTUM_PORTAL_FRAME);
+
+    // Ambient particle tint for the portal — cyan/fluix rather than vanilla's purple, matching
+    // the block's own MapColor.COLOR_CYAN below. See docs/DESIGN.md "Portal recolor".
+    public static final DeferredHolder<net.minecraft.core.particles.ParticleType<?>, net.minecraft.core.particles.SimpleParticleType> QUANTUM_PORTAL_PARTICLE =
+            PARTICLE_TYPES.register("quantum_portal", () -> new net.minecraft.core.particles.SimpleParticleType(false));
 
     // The interior "you're inside the portal now" block. Not directly obtainable — no BlockItem.
     public static final DeferredBlock<QuantumPortalBlock> QUANTUM_PORTAL = BLOCKS.registerBlock("quantum_portal",
@@ -267,6 +273,7 @@ public class QuantumVoid {
         CREATIVE_MODE_TABS.register(modEventBus);
         ENTITY_TYPES.register(modEventBus);
         MOB_EFFECTS.register(modEventBus);
+        PARTICLE_TYPES.register(modEventBus);
         FEATURES.register(modEventBus);
         BLOCK_ENTITY_TYPES.register(modEventBus);
 
