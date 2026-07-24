@@ -115,6 +115,11 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
 - Surface layering: Void Grass on top, Void Dirt for the next few blocks down, Sky Stone underneath (standard floor/depth surface rule).
 - Void Diamond/Emerald Block scatter as rare ore-style deposits within Sky Stone, not mined ores — they're already the final block.
 - Void trees scatter sparsely on Void Grass (straight trunk, blob foliage — plain aesthetic placeholder, no fruit/drop behavior yet).
+- **Real art for Void Log/Stripped Log/Planks/Door/Trapdoor/Leaves/Grass** replaced the
+  original flat-color placeholder textures — same dimensions, same file names, so no model or
+  blockstate changes were needed; the swap propagates automatically to every derived shape
+  that already referenced `void_planks`/`void_log` (stairs, slabs, fences, fence gates,
+  buttons, pressure plates). Void Dirt/Sand/Diamond Block/Emerald Block are still placeholder.
 
 ## Structures
 
