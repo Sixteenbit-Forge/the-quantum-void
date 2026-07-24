@@ -9,6 +9,8 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
 - Recipe: 2x Ender Pearl + 1x linked pair of Quantum Entangled Singularities → 2x Quantum Pearl (linked pair).
 - Craftable only via a network-connected crafting device on an ME network with an active, powered Quantum Ring formation. No power requirement after crafting.
 - The two output pearls are linked to each other (mirrors Entangled Singularity pairing).
+- Icon reuses vanilla's own Ender Pearl texture (real progression logic: it's crafted from one)
+  as a placeholder — a better fit than a flat generated color, still not unique art.
 
 **Quantum Portal Frame** (new block)
 - Modeled on End Portal Frame's activation pattern: holds one Quantum Pearl per frame block, portal activates when the full frame is filled.
