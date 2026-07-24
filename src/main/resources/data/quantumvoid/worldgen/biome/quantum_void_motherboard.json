@@ -11,7 +11,7 @@
   "carvers": [],
   "features": [
     [], [], [], [], [], [],
-    ["quantumvoid:void_diamond_ore_dense", "quantumvoid:void_emerald_ore_dense", "quantumvoid:flawed_budding_quartz_dense"],
+    ["quantumvoid:void_diamond_ore_dense", "quantumvoid:void_emerald_ore_dense", "quantumvoid:flawed_budding_quartz_dense", "quantumvoid:addon_ore_motherboard"],
     [], [],
     ["quantumvoid:void_tree"],
     []
