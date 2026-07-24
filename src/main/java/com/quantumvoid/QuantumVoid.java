@@ -15,6 +15,7 @@ import com.quantumvoid.entity.AbstractFragmentEntity;
 import com.quantumvoid.entity.FragmentBoltEntity;
 import com.quantumvoid.entity.FragmentMeleeEntity;
 import com.quantumvoid.entity.FragmentRangedEntity;
+import com.quantumvoid.worldgen.RegistryDrivenOreFeature;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -92,6 +93,12 @@ public class QuantumVoid {
                     .build(entityKey("fractured_core")));
 
     public static final DeferredHolder<MobEffect, MobEffect> CHANNEL_DRAIN = MOB_EFFECTS.register("channel_drain", ChannelDrainEffect::new);
+
+    public static final DeferredRegister<net.minecraft.world.level.levelgen.feature.Feature<?>> FEATURES = DeferredRegister.create(Registries.FEATURE, MODID);
+
+    // Addon ore world-gen — see docs/DESIGN.md and com.quantumvoid.api.ore.FractureCoreOreRegistry.
+    public static final DeferredHolder<net.minecraft.world.level.levelgen.feature.Feature<?>, RegistryDrivenOreFeature> REGISTRY_DRIVEN_ORE_FEATURE =
+            FEATURES.register("addon_ore", RegistryDrivenOreFeature::new);
 
     // Phase 0: consumed by a Quantum Portal Frame to activate it. Linking (pearl pairing)
     // is not implemented yet — activation currently teleports to a fixed destination.
@@ -250,6 +257,7 @@ public class QuantumVoid {
         CREATIVE_MODE_TABS.register(modEventBus);
         ENTITY_TYPES.register(modEventBus);
         MOB_EFFECTS.register(modEventBus);
+        FEATURES.register(modEventBus);
         BLOCK_ENTITY_TYPES.register(modEventBus);
 
         modEventBus.addListener(this::registerAttributes);

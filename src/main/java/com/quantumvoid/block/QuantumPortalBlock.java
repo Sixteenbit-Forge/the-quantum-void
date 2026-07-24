@@ -1,5 +1,6 @@
 package com.quantumvoid.block;
 
+import com.quantumvoid.api.event.QuantumPortalTravelEvent;
 import com.quantumvoid.dimension.QuantumVoidDimension;
 
 import net.minecraft.core.BlockPos;
@@ -62,6 +63,7 @@ public class QuantumPortalBlock extends Block {
         entity.setPortalCooldown();
         entity.teleport(new TeleportTransition(destination, arrivalPos, Vec3.ZERO,
                 entity.getYRot(), entity.getXRot(), TeleportTransition.DO_NOTHING));
+        QuantumPortalTravelEvent.post(entity, serverLevel, destination, !inQuantumVoid);
     }
 
     /**

@@ -1,0 +1,6 @@
+{
+  "type": "quantumvoid:addon_ore",
+  "config": {
+    "motherboard_only": true
+  }
+}

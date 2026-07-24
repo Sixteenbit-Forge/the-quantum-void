@@ -105,6 +105,16 @@ Target: Minecraft 26.1.2, NeoForge 26.1.2-80+, AE2 26.1.10-beta+.
 - ~~Drop-in substitute in AE2's existing Singularity crafting recipe~~ — **superseded**: checked AE2's real recipe data directly; `ae2:singularity` has no data-driven recipe at all to slot into (it's the hardcoded Matter Cannon "condense 256 matter balls" mechanic, confirmed by the total absence of any `recipe/*.json` outputting it). Patching that would mean touching AE2's internal Java, not a safe datapack change.
 - Implemented: Singularity Seed unlocks its own shapeless recipe (1x seed + 8x `ae2:fluix_crystal` → 1x `ae2:singularity`) — a real alternate path to the same output, achieving the "boss-gated shortcut to Singularities" intent without touching AE2 internals.
 
+## Addon API
+
+The mod exposes a small, stable `com.quantumvoid.api` package for external addons to build against, so addon mods (e.g. an ore/tool progression pack) don't need to depend on this mod's internals. Anything in this package is an additive-only compatibility promise once an addon depends on a version.
+
+- `api.ore.FractureCoreOreRegistry` — addons call `register(OreEntry)` once at mod-init to add ore blocks to the Fractured Core dimension's world-gen, no editing of this mod's biome/feature files required. Backed by `RegistryDrivenOreFeature`, a Feature already wired into both biomes' ore slot that reads the registry at placement time and delegates to vanilla's real `Feature.ORE` per entry (proper veins, not single blocks). Empty registry today — a genuine no-op until an addon registers something.
+- `api.tags.QuantumVoidTags` — tier-gating block tags (`needs_charged_certus_tier`/`needs_fluxstone_tier`/`needs_quantumite_tier`/`needs_paradoxium_tier`), mirroring vanilla's own `needs_iron_tool`/`needs_diamond_tool` convention. Data-driven on purpose — a third-party addon can slot a new tier into the same chain purely through datapack tags, no code dependency.
+- `api.event` — `SmithingJobStartEvent`/`SuccessEvent`/`FailureEvent`, `FuserMergeCompleteEvent`, `TierUpgradeAppliedEvent`, `QuantumPortalTravelEvent`. Tiers/upgrades are identified by `Identifier`, not an enum, so new ones don't require a change here. `QuantumPortalTravelEvent` is the one this mod fires itself (wired into the real portal teleport code) — the others are event *definitions* for whichever mod implements the Smithing Table/Fuser to fire.
+- `api.upgrade.IQuantumUpgradeHolder` — open-ended upgrade-slot interface (installed upgrades identified by `Identifier`, not a fixed enum) plus a shared `ItemCapability` constant (`QuantumUpgradeCapabilities.UPGRADE_HOLDER`) any mod's items can register against.
+- `api.QuantumVoidApi.singularitySeed()` — the sanctioned way to reference this mod's Singularity Seed item; addons should consume it through here rather than reaching into `QuantumVoid.SINGULARITY_SEED` directly.
+
 ## Open (not yet locked)
 - Exact tuning numbers: Fragment drain stacking cap/magnitude, boss health, phase sequencing/triggers
 - Motherboard-biome rarity/size numbers — first-pass placeholder, not yet observed in a live world
